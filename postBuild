@@ -1,0 +1,10 @@
+#!/bin/bash
+#
+# This file launches at mybinder server startup. We use it to setup the 
+# jupyter theme.
+
+set -ex
+
+# Setup jupyter-theme grade3.
+# cf. `https://github.com/dunovank/jupyter-themes` for doc.
+jt -t grade3

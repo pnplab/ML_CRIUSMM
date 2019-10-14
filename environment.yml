@@ -1,0 +1,14 @@
+name: pnplab_mlcourse
+channels:
+    # ...default conda channels already set up
+    - conda-forge # for nilearn, rise and jupyterthemes
+dependencies:
+    - python=3.7
+    - jupyter=1.0.0
+    - rise=5.5.1
+    - numpy=1.17.2
+    - pandas=0.25.1
+    - nilearn=0.5.2
+    - matplotlib=3.1.1
+    - jupyterthemes=0.20.0
+
