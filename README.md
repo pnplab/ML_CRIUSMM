@@ -12,30 +12,25 @@ Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https:
 ### Intro
 (...)
 
-### Cours 1
+### Cours 1: Les concepts
 - Statistiques classique vs apprentissage machine
+    - test
 - Apprentissage machine supervisé vs non supervisé
 
-### Cours 2
+### Cours 2: Apprentissage machine - Modèles linéaires
+- Fonction de coût
+- (Cross)validation
+- Régularisation
+- Régression (simple et logistique), analyse discriminante linéaire, analyse en composantes indépendantes
+
+### Cours 3: Apprentissage machine supervisé: modèles non linéaires
 - (...)
 - (...)
 
-### Cours 3
+### Cours 4: Apprentissage machine non supervisé
 - (...)
 - (...)
 
-### Cours 4
+### Cours 5: Apprentissage profond et perspectives
 - (...)
 - (...)
-
-### Cours 5
-- (...)
-- (...)
-
-
-```sh
-jupyter notebook
-```
-
-
-
