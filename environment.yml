@@ -4,6 +4,7 @@ channels:
     - conda-forge # for nilearn, rise, jupyterthemes and pip (pip is used for mglearn)
 dependencies:
     - python=3.7
+    - jupyter=1.0.0
     - jupyterlab=1.1.4
     - rise=5.5.1
     - numpy=1.17.2
