@@ -9,13 +9,23 @@ Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https:
 
 ## Plan de formation
 
-### Intro
-(...)
+### Intro: mise en bouche
+- Considérations pratiques: python, scikitlearn, github, binder
+- Les termes: Intelligence artificielle, apprentissage machine, apprentissage profond, big data
+- L'apprentissage machine en psychiatrie
+- Survol
 
 ### Cours 1: Les concepts
-- Statistiques classique vs apprentissage machine
-    - test
+- Statistiques classiques vs apprentissage machine
+    - déduction vs induction
+    - postulats
+    - biais et variance
+    - généralisation: groupe vs individu
+    - N et P
+    - complexité des modèles
+    - interprétation vs prédiction
 - Apprentissage machine supervisé vs non supervisé
+    - test
 
 ### Cours 2: Apprentissage machine - Modèles linéaires
 - Fonction de coût
@@ -25,12 +35,9 @@ Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https:
 
 ### Cours 3: Apprentissage machine supervisé: modèles non linéaires
 - (...)
-- (...)
 
 ### Cours 4: Apprentissage machine non supervisé
 - (...)
-- (...)
 
 ### Cours 5: Apprentissage profond et perspectives
-- (...)
 - (...)
