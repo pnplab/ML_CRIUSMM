@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# This file is automatically run by mybinder.org at server startup.
+
+# Install jupyterlab-git extension (already added through conda with environment.yml).
+jupyter lab build
