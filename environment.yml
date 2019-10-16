@@ -1,11 +1,15 @@
 name: pnplab_mlcourse
 channels:
     # ...default conda channels already set up
-    - conda-forge # for nilearn, rise, jupyterthemes and pip (pip is used for mglearn)
+    - conda-forge # for nilearn, rise, jupyterthemes, pip (pip is used for mglearn), nodejs and jupyterlab-git
 dependencies:
+    # ... many of the dependencies listed below seems to be already
+    # installed on mybinder (including jupyter, jupyterlab, nodejs).
     - python=3.7
     - jupyter=1.0.0
     - jupyterlab=1.1.4
+    - nodejs=12.11.1 # required for jupyterlab extensions cf. https://jupyterlab.readthedocs.io/en/stable/user/extensions.html -- although seems to work without
+    - jupyterlab-git=0.8.2
     - rise=5.5.1
     - numpy=1.17.2
     - pandas=0.25.1
