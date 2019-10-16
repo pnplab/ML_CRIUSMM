@@ -4,9 +4,9 @@ Ce "répo" github contient le matériel utilisé dans la formation en apprentiss
 
 Le matériel est disponible dans des dossiers séparés pour les 5 sessions théoriques et de démonstration (```intro/cours_1, cours_2, cours_3, cours_4 et cours_5```) et les 2 séances de travaux pratiques (```TP_1 et TP_2```). 
 
-Chaque cours repose sur un notebook jupyter 
+Chaque cours repose sur un notebook jupyter (https://jupyter.org), une application WEB qui permet de créer et de partager des documents contenant du code et d'en visualiser le résultat. Toutes les démonstrations reposent sur ScikitLearn (https://scikit-learn.org/), une bibliothèque libre Python dédiée à l'apprentissage machine.
 
-Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
+Afin de ne pas requérir des participants à la formation de créer un environnement leur permettant l'exécution fluide des notebooks (anaconda recommandé: https://www.anaconda.com/distribution/), une version interactive est accessible sur Binder (https://mybinder.org): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
 
 
 ## Plan de formation
