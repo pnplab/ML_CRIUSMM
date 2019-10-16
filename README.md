@@ -11,13 +11,13 @@ Afin de ne pas requérir des participants à la formation de créer un environne
 
 ## Plan de formation
 
-### Intro: mise en bouche
+#### Intro: mise en bouche
 - Considérations pratiques: python, scikitlearn, github, binder
 - Les termes: Intelligence artificielle, apprentissage machine, apprentissage profond, big data
 - L'apprentissage machine en psychiatrie
 - Survol
 
-### Cours 1: Les concepts
+#### Cours 1: Les concepts
 - Statistiques classiques vs apprentissage machine
     - déduction vs induction
     - postulats
@@ -31,17 +31,21 @@ Afin de ne pas requérir des participants à la formation de créer un environne
     - métriques de performance
     - non supervisé
 
-### Cours 2: Apprentissage machine - Modèles linéaires
+#### Cours 2: Apprentissage machine - Modèles linéaires
 - Fonction de coût
 - (Cross)validation
 - Régularisation
 - Régression (simple et logistique), analyse discriminante linéaire, analyse en composantes indépendantes
 
-### Cours 3: Apprentissage machine supervisé: modèles non linéaires
+#### Cours 3: Apprentissage machine supervisé: modèles non linéaires
 - (...)
 
-### Cours 4: Apprentissage machine non supervisé
+#### Cours 4: Apprentissage machine non supervisé
 - (...)
 
-### Cours 5: Réseaux de neurones (profonds) et perspectives
+#### Cours 5: Réseaux de neurones (profonds) et perspectives
 - (...)
+
+## Ressources additionnelles
+
+
