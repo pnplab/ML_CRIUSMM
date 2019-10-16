@@ -4,6 +4,8 @@ Ce "répo" github contient le matériel utilisé dans la formation en apprentiss
 
 Le matériel est disponible dans des dossiers séparés pour les 5 sessions théoriques et de démonstration (```intro/cours_1, cours_2, cours_3, cours_4 et cours_5```) et les 2 séances de travaux pratiques (```TP_1 et TP_2```). 
 
+Chaque cours repose sur un notebook jupyter 
+
 Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
 
 
@@ -25,7 +27,9 @@ Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https:
     - complexité des modèles
     - interprétation vs prédiction
 - Apprentissage machine supervisé vs non supervisé
-    - test
+    - supervisé: régression vs classification
+    - métriques de performance
+    - non supervisé
 
 ### Cours 2: Apprentissage machine - Modèles linéaires
 - Fonction de coût
@@ -39,5 +43,5 @@ Version interactive ici: [![Binder](https://mybinder.org/badge_logo.svg)](https:
 ### Cours 4: Apprentissage machine non supervisé
 - (...)
 
-### Cours 5: Apprentissage profond et perspectives
+### Cours 5: Réseaux de neurones (profonds) et perspectives
 - (...)
