@@ -1,7 +1,7 @@
 name: pnplab_mlcourse
 channels:
     # ...default conda channels already set up
-    - conda-forge # for nilearn, rise, jupyterthemes and pip (pip is used for mglearn)
+    - conda-forge # for nilearn, rise, jupyterthemes, jupyter_contrib_nbextensions and pip (pip is used for mglearn)
 dependencies:
     - python=3.7
     - jupyter=1.0.0
@@ -13,7 +13,14 @@ dependencies:
     - jupyterthemes=0.20.0
     - scikit-learn=0.21.3
     - seaborn=0.9.0
+    
+    # for Split Cells Notebook extension
+    # through-conda nbextensions install also installs js and css file
+    # automatically.
+    - jupyter_contrib_nbextensions
+    
     - pip=19.2.3 # for mglearn
     - pip:
        - mglearn
+
 
