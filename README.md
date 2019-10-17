@@ -10,7 +10,7 @@ Le matériel est disponible dans des dossiers séparés pour les 5 sessions thé
 
 Chaque cours repose sur un notebook jupyter (https://jupyter.org), une application WEB qui permet de créer et de partager des documents contenant du code et d'en visualiser le résultat. Toutes les démonstrations reposent sur ScikitLearn (https://scikit-learn.org/), une bibliothèque libre Python dédiée à l'apprentissage machine. 
 
-Les données utilisées pour tous les exemples proviennent de données simulées (données transversales pour 543 patients et 90 contrôles, avec 222 variables) à partir de la banque de données Signature (https://www.banquesignature.ca). *__Il est strictement interdit d'utiliser ces données à d'autres fins que de formation. Toute demande d'accès doit être formulé en bonne et due forme:__* https://www.banquesignature.ca/demande-acces/faire-une-demande-dacces/
+Les données utilisées pour tous les exemples proviennent de données simulées (fichier ```dataset_signature.csv``` contenant des données transversales pour 543 patients et 90 contrôles, avec 222 variables) à partir de la banque de données Signature (https://www.banquesignature.ca). *__Il est strictement interdit d'utiliser ces données à d'autres fins que de formation. Toute demande d'accès doit être formulé en bonne et due forme:__* https://www.banquesignature.ca/demande-acces/faire-une-demande-dacces/
 
 Afin de ne pas requérir des participants à la formation de créer un environnement leur permettant l'exécution fluide des notebooks (anaconda recommandé: https://www.anaconda.com/distribution/), une version interactive est accessible sur Binder (https://mybinder.org): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
 
