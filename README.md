@@ -1,3 +1,7 @@
+<div>
+    <img src="img/criusmm_signature.svg" style="width: 10%; display: inline-block" />
+</div>
+
 # Formation en apprentissage machine au CRIUSMM
 
 Ce "répo" github contient le matériel utilisé dans la formation en apprentissage machine donnée au CRIUSMM à l'automne 2019.
