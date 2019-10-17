@@ -53,7 +53,7 @@ Afin de ne pas requérir des participants à la formation de créer un environne
 - *The hundred pages machine learning book* (Burkov, 2019): http://themlbook.com
 
 <div>
-    <img src="img/book_burkov_fr.svg" style="width: 20%; display: inline-block" />
+    <img src="img/book_burkov_fr.svg" style="width: 10%; display: inline-block" />
 </div>
 
 <br/>
