@@ -1,5 +1,5 @@
 <div style="text-align: center">
-    <img src="img/criusmm.svg" style="width: 50%; display: inline-block" />
+    <img src="img/criusmm.svg" style="width: 100%; display: inline-block" />
 </div>
 
 # Formation en apprentissage machine au CRIUSMM
