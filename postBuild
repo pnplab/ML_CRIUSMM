@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# This file is automatically run by mybinder.org at server startup.
+
+# Install jupyterlab-git extension (already added through conda with environment.yml).
+# -- actually not - this is a cherry-picked commit.
+# jupyter lab build
+
+# Install Split Cells Notebook extension through jupyter-nbextension extension
+# (which is an extension for unofficial extensions).
+jupyter nbextension enable splitcell/splitcell
+
