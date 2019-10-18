@@ -1,0 +1,17 @@
+/**
+ * Rise plugin automatically loads css files having the same name as the 
+ * ipynb. Unfortunately, loading fails in mybinder (first 302 http redirect 
+ * than 404 error for the file, and 503 forbidden for direct access). Even if
+ * it seems to work locally.
+ * Thus we have to rely on jupyter-notebook global css config mechanism
+ * instead. It applies to every jupyter notebook on the server.
+ *
+ * Unfortunately, it is only loaded through mybinder and not locally. Thus
+ * all files have to be conserved for proper usage both locally and remotely.
+ */
+
+/* Remove white background in slide mode */
+body.notebook_app.rise-enabled {
+    background-color: white;
+}
+

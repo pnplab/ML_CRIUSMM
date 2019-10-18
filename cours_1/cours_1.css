@@ -1,6 +1,10 @@
 /**
- * This file is autoloaded due to its name.
+ * This file is autoloaded by rise plugin due to its name.
  * cf. `https://github.com/damianavila/RISE/tree/master/examples`.
+ *
+ * Unfortunately, it doesn't work on mybinder. In order to allow css editing 
+ * on mybinder, and have more info see `.jupyter/custom/custom.css` file 
+ * relative to the root of this git repository.
  **/
 
 body.notebook_app.rise-enabled {
