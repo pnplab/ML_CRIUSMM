@@ -62,14 +62,14 @@ Afin de ne pas requérir des participants à la formation de créer un environne
     <img src="img/book_burkov_fr.svg" style="width: 10%; display: inline-block" />
 </div>
 
-<br/>
+
 - *An introduction to statistical learning with applications in R* (James, Witten, Hastie & Tibshirani, 2014): http://faculty.marshall.usc.edu/gareth-james/ISL/. Version gratuite en ligne.
 
 <div>
     <img src="img/book_james.svg" style="width: 30%; display: inline-block" />
 </div>
 
-<br/>
+
 - *Introduction to machine learning with Python* (Muller & Guido, 2016).
 
 <div>
