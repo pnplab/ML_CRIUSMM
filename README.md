@@ -19,26 +19,21 @@ Afin de ne pas requérir des participants à la formation de créer un environne
 
 ### Intro: mise en bouche
 - Considérations pratiques: python, scikitlearn, github, binder
-- Les termes: Intelligence artificielle, apprentissage machine, apprentissage profond, big data
+- Les termes: Intelligence artificielle, apprentissage machine, apprentissage profond, données massives
+- Les 2 cultures: statistiques classiques et apprentissage statistique
 - L'apprentissage machine en psychiatrie
 - Survol
 
 ### Cours 1: Les concepts
 - Statistiques classiques vs apprentissage machine
-    - déduction vs induction
-    - postulats
-    - biais et variance
-    - généralisation: groupe vs individu
-    - N et P
-    - complexité des modèles
     - interprétation vs prédiction
+    - déduction vs induction
+    - biais et variance
 - Apprentissage machine supervisé vs non supervisé
     - supervisé: régression vs classification
-    - métriques de performance
     - non supervisé
 
 ### Cours 2: Apprentissage machine - Modèles linéaires
-- Fonction de coût
 - (Cross)validation
 - Régularisation
 - Régression (simple et logistique), analyse discriminante linéaire, analyse en composantes indépendantes
