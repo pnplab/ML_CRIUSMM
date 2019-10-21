@@ -71,7 +71,4 @@ Afin de ne pas requérir des participants à la formation de créer un environne
     <img src="img/book_muller.svg" style="width: 30%; display: inline-block" />
 </div><br/>
 
-### Articles
-
-- 
 
