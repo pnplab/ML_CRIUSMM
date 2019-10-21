@@ -28908,25 +28908,25 @@ em4Fby23PwHegl90OiKAAAIIIIBAEwv8P1dOvoiaCaZbAAAAAElFTkSuQmCC
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-       x="51.712337"
+       x="65.832924"
        y="194.90305"
        id="text2171"><tspan
          sodipodi:role="line"
          id="tspan2169"
-         x="51.712337"
+         x="65.832924"
          y="194.90305"
-         style="font-size:3.52777767px;stroke-width:0.26458332">222 variables démographiques et cliniques</tspan></text>
+         style="font-size:3.52777767px;stroke-width:0.26458332">222 variables (prédicteurs) </tspan></text>
     <text
        id="text2175"
        y="8.5614338"
-       x="-271.66104"
+       x="-266.17731"
        style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        xml:space="preserve"
        transform="rotate(-90)"><tspan
          style="font-size:3.52777767px;stroke-width:0.26458332"
          y="8.5614338"
-         x="-271.66104"
+         x="-266.17731"
          id="tspan2173"
-         sodipodi:role="line">543 patients et 90 contrôles</tspan></text>
+         sodipodi:role="line">633 sujets (exemples)</tspan></text>
   </g>
 </svg>
