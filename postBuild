@@ -10,3 +10,5 @@
 # (which is an extension for unofficial extensions).
 jupyter nbextension enable splitcell/splitcell
 
+# Install Python Markdown Notebook extension.
+jupyter nbextension enable python-markdown/python-markdown
