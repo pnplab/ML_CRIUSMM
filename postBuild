@@ -12,3 +12,8 @@ jupyter nbextension enable splitcell/splitcell
 
 # Install Python Markdown Notebook extension.
 jupyter nbextension enable python-markdown/python-markdown
+
+# Trust all notebooks by default so they run python-markdown extension at launch time.
+# Unsecure locally, but since it happens inside a docker container, we do not worry
+# too much.
+for file in */*.ipynb; do jupyter trust "$file"; done
