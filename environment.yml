@@ -14,7 +14,7 @@ dependencies:
     - scikit-learn=0.21.3
     - seaborn=0.9.0
     
-    # for Split Cells Notebook extension
+    # for Split Cells and Markdown (enable in-markdown output variable) Notebook extensions
     # through-conda nbextensions install also installs js and css file
     # automatically.
     - jupyter_contrib_nbextensions
