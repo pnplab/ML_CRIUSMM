@@ -17,35 +17,52 @@ Afin de ne pas requérir des participants à la formation de créer un environne
 
 ## Plan de formation
 
-### Intro: mise en bouche
-- Considérations pratiques: python, scikitlearn, github, binder
-- Les termes: Intelligence artificielle, apprentissage machine, apprentissage profond, données massives
-- Les 2 cultures: statistiques classiques et apprentissage statistique
-- L'apprentissage machine en psychiatrie
-- Survol
-
-### Cours 1: Les concepts
-- Statistiques classiques vs apprentissage machine
+### Cours 1: Intro à l'apprentissage machine
+- Statistiques inférentielles vs apprentissage machine
     - interprétation vs prédiction
     - déduction vs induction
     - biais et variance
 - Apprentissage machine supervisé vs non supervisé
     - supervisé: régression vs classification
-    - non supervisé
+    - non supervisé: réduction vs regroupement
 
-### Cours 2: Apprentissage machine - Modèles linéaires
-- (Cross)validation
-- Régularisation
-- Régression (simple et logistique), analyse discriminante linéaire, analyse en composantes indépendantes
+### Cours 2: Apprentissage machine supervisé - régression 
+- Concepts fondamentaux de l'apprentissage machine supervisé
+    - Hyperparamètres et régularisation: ridge, lasso et elastic-net
+    - Méthodes analytique vs itérative (descente de gradient)
+    - Validation (croisée, croisée nichée)
 
-### Cours 3: Apprentissage machine supervisé: modèles non linéaires
-- (...)
+### Cours 3: Apprentissage machine supervisé - classification
+- Évaluation: matrice de confusion et courbe "ROC"
+- Algorithmes
+    - Régression logistique
+    - Machines à vecteurs de support (marges dure vs souple, noyaux linéaire vs non linéaire)
 
-### Cours 4: Apprentissage machine non supervisé
-- (...)
+### Cours 4: Apprentissage machine supervisé - classification (suite)
+- Autres algorithmes
+    - Arbres de décision
+    - Bagging: forêts aléatoires
+    - Boosting de gradient
+    - Classification naïve bayésienne
+    - K plus proches voisins
+- Sélection de caractéristiques
+- Classification multi-classes
 
-### Cours 5: Réseaux de neurones (profonds) et perspectives
-- (...)
+### Cours 5: Apprentissage machine non supervisé
+- Réduction de dimensions
+    - Analyse en composantes principales
+    - "t-SNE"
+- Regroupement
+    - K-moyennes
+    - Décalage de moyenne
+    - "DBSCAN"
+    - Modèles de mélange gaussien
+    - Modèles hiérarchiques
+    - Validation (interne vs externe)
+    - Modèles d'ensemble
+
+### Cours 6: Réseaux de neurones (profonds)
+
 
 ## Ressources additionnelles
 
