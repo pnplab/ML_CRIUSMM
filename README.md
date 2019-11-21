@@ -19,12 +19,12 @@ Les données utilisées pour tous les exemples proviennent de données simulées
 
 ### Cours 1: Intro à l'apprentissage machine
 - Statistiques inférentielles vs apprentissage machine
-    - interprétation vs prédiction
-    - déduction vs induction
-    - biais et variance
+    - Interprétation vs prédiction
+    - Déduction vs induction
+    - Biais et variance
 - Apprentissage machine supervisé vs non supervisé
-    - supervisé: régression vs classification
-    - non supervisé: réduction vs regroupement
+    - Supervisé: régression vs classification
+    - Non supervisé: réduction vs regroupement
 
 ### Cours 2: Apprentissage machine supervisé - régression 
 - Concepts fondamentaux de l'apprentissage machine supervisé
