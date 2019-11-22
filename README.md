@@ -1,5 +1,5 @@
 <div style="text-align: center">
-    <img src="img/criusmm.svg" style="width: 100%; display: inline-block" />
+    <img src="source/img/criusmm.svg" style="width: 100%; display: inline-block" />
 </div>
 
 # Formation en apprentissage machine au CRIUSMM
@@ -72,21 +72,21 @@ Les données utilisées pour tous les exemples proviennent de données simulées
 - *The hundred pages machine learning book* (Burkov, 2019): http://themlbook.com. Version gratuite en ligne, et traduction française disponible sur amazon.
 
 <div>
-    <img src="img/book_burkov_fr.svg" style="width: 10%; display: inline-block" />
+    <img src="source/img/book_burkov_fr.svg" style="width: 10%; display: inline-block" />
 </div><br/>
 
 
 - *An introduction to statistical learning with applications in R* (James, Witten, Hastie & Tibshirani, 2014): http://faculty.marshall.usc.edu/gareth-james/ISL/. Version gratuite en ligne.
 
 <div>
-    <img src="img/book_james.svg" style="width: 30%; display: inline-block" />
+    <img src="source/img/book_james.svg" style="width: 30%; display: inline-block" />
 </div><br/>
 
 
 - *Introduction to machine learning with Python* (Muller & Guido, 2016).
 
 <div>
-    <img src="img/book_muller.svg" style="width: 30%; display: inline-block" />
+    <img src="source/img/book_muller.svg" style="width: 30%; display: inline-block" />
 </div><br/>
 
 
