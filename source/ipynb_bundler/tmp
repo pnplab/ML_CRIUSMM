@@ -1,0 +1,352 @@
+#!/usr/bin/env node
+
+// Concerning image processing dependencies:
+// - Sharp lib issues: PNG colours/palette/quality output parameters 
+// were ignored, gif output wasn't possible. wasn't able to get any size 
+// compression except through resampling.
+// - compress-images lib issues: install failed: jpegoptim pre-build test
+// failed. Installed jpegoptim-bin manually with updated version as a fix
+// cf https://github.com/semiromid/compress-images/issues/31. didnt work.
+// - imagemin has been tried because crossref from compress-image dependency
+// cf. https://github.com/imagemin/jpegoptim-bin#readme. PB is it doesn't allow
+// trans-compression (svg stays svg, and in our case no compression is done
+// because our svg embed png which is not altered by imagemin-svgo plugin).
+// thus,
+// => we use shar for svg->png file type conversion
+// => we use imagemin for png compression
+
+// https://github.com/imagemin/imagemin
+const imagemin = require('imagemin');
+const imageminPngquant = require('imagemin-pngquant');
+
+// https://github.com/lovell/sharp
+const sharp = require('sharp');
+
+// https://github.com/isaacs/node-glob
+const glob = require('glob-promise');
+
+// https://stackoverflow.com/questions/46867517/how-to-read-file-with-async-await-properly/46867579
+const fs = require('fs');
+const util = require('util');
+const child_process = require('child_process');
+
+// https://nodejs.org/dist/latest-v6.x/docs/api/fs.html#fs_fs_readfile_file_options_callback
+const readFile = util.promisify(fs.readFile);
+
+// https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
+const writeFile = util.promisify(fs.writeFile);
+
+// https://nodejs.org/api/fs.html#fs_fs_copyfile_src_dest_flags_callback node 8.5+
+const copyFile = util.promisify(fs.copyFile);
+
+// https://nodejs.org/api/child_process.html
+const exec = util.promisify(child_process.exec);
+
+// https://github.com/cheeriojs/cheerio
+const cheerio = require('cheerio');
+
+// https://nodejs.org/api/path.html
+const path = require('path');
+
+// Main dataflow.
+(async () => {
+	// Retrieve ipynb file list.
+	const inputIpynbFiles = await listInputIpynbFiles();
+	// Process ipynb file list.
+	let ouputIpynbFiles = await processIpynbFileListWith(
+		inputIpynbFiles,
+		// Process Ipynb output content.
+		async (ipynbJson, ipynbPath) => {
+			// Change Markdown cell content.
+			return await processIpynbJsonMarkdownCellsWith(
+				ipynbJson,
+				async (markdownCellSourceStr) => {
+					// Change Img src attribute.
+					return await processMarkdownStringImgSrcsWith(
+						markdownCellSourceStr,
+						async (imgSrc) => {
+							// ...image path is currently relative to the
+							// ipynb. We need to make it relative to this
+							// current script.
+							const newImgSrc = path.join(ipynbPath, '..', imgSrc);
+
+							let output = imgSrc;
+							try {
+								// Process image and embed it inside src attr.
+								let resampledPngBuffer = await convertImagePathToResampledPngBuffer(newImgSrc);
+								let compressedPngBuffer = await compressPngBuffer(resampledPngBuffer);
+								resampledPngBuffer = null;
+								let base64PngBufferStr = compressedPngBuffer.toString('base64');
+								compressedPngBuffer = null;
+								let base64PngDataUrl = 'data:image/png;base64,' + base64PngBufferStr;
+
+								// Set new base64 data url and log success.
+								output = base64PngDataUrl;
+								console.info('SUCCESS ', ipynbPath, newImgSrc);
+							}
+							catch (e) {
+								console.log(e);
+								// Keep previous img src and log failure.
+								output = imgSrc;
+								console.info('FAILURE ', ipynbPath, newImgSrc);
+							}
+
+							// Apply processing.
+							return output;
+						}
+					);
+				}
+			);
+		},
+		// Bundle Ipynb.
+		async (inputIpynbPath, outputIpynbStr) => {
+			// Get filename without extension.
+			const bundle = path.basename(inputIpynbPath, '.ipynb');
+
+			// Create bundle dir if doesn't exists.
+			if (!fs.existsSync(`../${bundle}`)) {
+				fs.mkdirSync(`../${bundle}`, 0744);
+			}
+
+			// Record processed ipynb file.
+			let outputIpynbPath = `../${bundle}/${bundle}.ipynb`;
+			await writeFile(outputIpynbPath, outputIpynbStr, 'utf8');
+
+			// Inject css file.
+			// @warning this css file can only be read if the jupyter notebook 
+			// rise extension is enabled (see comments in template.css file).
+			await copyFile('template.css', `../${bundle}/${bundle}.css`);
+
+			// Convert processed ipynb to pdf.
+			// @warning unsafe.
+			// Requires xelatex: `OSError: xelatex not found on PATH, if you
+			// have not installed xelatex you may need to do so. Find further
+			// instructions at https://nbconvert.readthedocs.io/en/latest/install.html#installing-tex.
+			// Instructions provide link to MacTex ~4go dependency. You can use
+			// BasicTex ~100mo dependency instead here
+			// http://www.texts.io/support/0001/ or just `brew cask install
+			// basictex` on mac. You may need to resource your PATH env
+			// variable after installation (restart terminal).
+			// 
+			// ! LaTeX Error: File `tcolorbox.sty' not found.
+			// ```bash
+			// sudo tlmgr update --self
+			// sudo tlmgr install adjustbox
+			// sudo tlmgr install tcolorbox
+			// sudo tlmgr install environ
+			// trimspaces
+			// collectbox
+			// ucs
+			// ```
+			const { stdout, stderr } = await exec(`jupyter nbconvert --to pdf ../${bundle}/${bundle}.ipynb --output ../${bundle}/${bundle}.pdf`);
+
+			// Move bundle.
+			return `../${bundle}`;
+		}
+	);
+
+	console.info(ouputIpynbFiles);
+})();
+
+async function listInputIpynbFiles() {
+	// Retrieve ipynb files to process.
+	let ipynbs = await glob('../source/*.ipynb');
+
+	// Remove ipynbs from the build folder.
+	ipynbs = ipynbs.filter(ipynb => 
+		!path
+			.relative('.', ipynb)
+			.startsWith('build')
+	);
+
+	// Return list.
+	return ipynbs;
+}
+
+async function processIpynbFileListWith(ipynbFilePaths, processIpynbJsonFn, recordProcessedIpynbFn) {
+	ipynbFilePaths = [...ipynbFilePaths]; // clone input to prevent side effect.
+	let outputIpynbFilePaths = [];
+
+	// For every input ipynb file path.
+	for (let i=0; i<ipynbFilePaths.length; ++i) {
+		const ipynbPath = ipynbFilePaths[i];
+
+		// Retrieve ipynb text content. Specify encoding so readFile returns a 
+		// string instead of a buffer.
+		// cf. https://stackoverflow.com/questions/6456864/why-does-node-js-fs-readfile-return-a-buffer-instead-of-string.
+		const ipynbStr = await readFile(ipynbPath, 'utf8');
+
+		// Parse ipynb string as a json object.
+		const ipynbJson = JSON.parse(ipynbStr);
+
+		// Apply processing function.
+		let processedIpynbJson = await processIpynbJsonFn(ipynbJson, ipynbPath);
+
+		// Convert back ipynb json output to string once processed.
+		let processedIpynbStr = JSON.stringify(processedIpynbJson);
+
+		// Generate output file path.
+		const processedIpynbPath = await recordProcessedIpynbFn(ipynbPath, processedIpynbStr);
+
+		// Store new file to our array.
+		outputIpynbFilePaths.push(processedIpynbPath);
+	}
+
+	// Return ipynbs output file paths.
+	return outputIpynbFilePaths;
+}
+
+async function processIpynbJsonMarkdownCellsWith(ipynbJson, processMarkdownStrFn) {
+	// Prevent side effects on input parameter object/reference by clonage.
+	// For safety, as we indeed will modify it later.
+	ipynbJson = JSON.parse(JSON.stringify(ipynbJson));
+	let processedIpynbJson = ipynbJson;
+	
+	// Retrieve html img sources from markdown cells.
+	const ipynbCells = ipynbJson.cells;
+	for (let i=0; i<ipynbCells.length; ++i) {
+		const ipynbCell = ipynbCells[i];
+		if (ipynbCell.cell_type !== 'markdown') {
+			// ...ignore cells that aren't markdown ones.
+		}
+		else {
+			// Retrieve markdown content.
+			const markdownCellSource = ipynbCell.source;
+
+			// Ignore intreatable markdownCellSource.
+			if (Array.isArray(markdownCellSource) || typeof markdownCellSource === 'string') {
+				// This is the right way, continue this iteration!
+			}
+			else if (typeof markdownCellSource === 'object' && Object.keys(markdownCellSource).length === 0) {
+				// ...ignore empty objects, probably auto generated. Jump to
+				// next iteration.
+				continue;
+			}
+			else {
+				// ...wrong content cell type.
+				// Warn but keep the process ongoing.
+				console.warn('WARN: wrong markdown content cell type found (neither string nor array): ', typeof markdownCellSource, markdownCellSource);
+
+				// Prevent processMarkdownStrFn to be called with wrong
+				// parameter input. Jump to next iteration.
+				continue;
+			}
+
+			// Convert multiline cell sources in string if array. 
+			// @warning we'll partly lose the original file formating but this
+			// prevent edge case from happening such has having to process an
+			// img tag splitted along multiple line. This is also the way
+			// official nbformat API does.
+			// cf. https://nbformat.readthedocs.io/en/latest/format_description.html#cell-types.
+			let markdownCellSourceStr;
+			if (Array.isArray(markdownCellSource)) {
+				markdownCellSourceStr = markdownCellSource.join('\n');
+			}
+			else if (typeof markdownCellSource === 'string') {
+				markdownCellSourceStr = markdownCellSource;
+			}
+
+			// Apply processing to it.
+			const processedMarkdownCellSourceStr = await processMarkdownStrFn(markdownCellSourceStr);
+
+			// Update our output ipynb object.
+			processedIpynbJson.cells[i].source = processedMarkdownCellSourceStr;
+		}
+	}
+
+	// Return processed ipynb json.
+	return processedIpynbJson;
+}
+
+async function processMarkdownStringImgSrcsWith(markdownString, processSrcFn) {
+	// Check param to ensure cheerio doesn't throw. cf
+	// https://github.com/cheeriojs/cheerio/issues/1091#issuecomment-364444116.
+	if (typeof markdownString !== 'string') {
+		throw new Error('processMarkdownStringImgSrcsWith markdownString should be of type string, found ' + typeof processMarkdownStringImgSrcsWith + ' instead.');
+	}
+
+	// Parse markdown as loose HTML (because it includes html and
+	// our goal is to process <img> tags embedded within). Cheerio will 
+	// automatically embed the markdown string inside a standard <html> / 
+	// <body> structure.
+	const $ = cheerio.load(markdownString, {
+		xmlMode: false,
+		decodeEntities: false
+	});
+
+	// Retrieve all image src attributes. Store processing promises in an array
+	// out of cheerio API as we don't know how #each method handles 
+	// asynchronicity. It might ignore asynchronous function.
+	// cf. https://github.com/cheeriojs/cheerio/issues/752#issuecomment-140776722
+	let processingSrcPromises = [];
+	const src = $('body img').each((i, img) => {
+		let src = $(img).attr('src');
+		if (typeof src !== 'string') {
+			// ...filter out <img> without string src attribute.
+		}
+		else {
+			// Process src attribute. Ensure we always retrieve a promise out
+			// of this.
+			let processingPromise1 = Promise.resolve(processSrcFn(src));
+
+			// Modify the src attribute once processing has been executed.
+			let processingPromise2 = (async () => {
+				const processedSrc = await processingPromise1;
+				$(img).attr('src', processedSrc);
+			})();
+
+			// Add filtered src processing promises to a promise list so we'll 
+			// be able to wait untill all asynchronous processing have ended.
+			processingSrcPromises.push(processingPromise2);
+		}
+	});
+	
+	// Wait for all src attribute processing to be done.
+	// @warning will fail if one fail. `Promise.allSettled` not available in
+	//     node 10.
+	await Promise.all(processingSrcPromises);
+
+	// Return our processed markdown.
+	let processedMarkdownString = $('body').html();
+	return processedMarkdownString;
+}
+
+async function convertImagePathToResampledPngBuffer(imagePath) {
+	// Process buffer. `imagePath` can be any image, including svg.
+	let resampledPngBuffer = await sharp(imagePath)
+			.png({
+				/* 
+				..config options seems not to be working.
+				palette: true,
+				quality: 0,
+				colours: 2
+				*/
+			})
+			// https://sharp.pixelplumbing.com/en/stable/api-resize/#resize
+			.resize(800, 600, {
+				fit: 'inside',
+				withoutEnlargement: true
+			})
+			.toBuffer();
+	
+	// Return buffer.
+	return resampledPngBuffer;
+}
+
+async function compressPngBuffer(pngBuffer) {
+	const compressedPngBuffer = await imagemin.buffer(
+		// Input.
+		pngBuffer, 
+		// Opts.
+		{},
+		// Plugins.
+		[
+			imageminPngquant({
+				strip: true,
+				quality: [0, 0.9]
+			})
+		]
+	);
+
+	return compressedPngBuffer;
+}

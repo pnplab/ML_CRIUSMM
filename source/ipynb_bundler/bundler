@@ -1,0 +1,568 @@
+#!/usr/bin/env node
+
+// Concerning image processing dependencies:
+// - Sharp lib issues: PNG colours/palette/quality output parameters 
+// were ignored, gif output wasn't possible. wasn't able to get any size 
+// compression except through resampling.
+// - compress-images lib issues: install failed: jpegoptim pre-build test
+// failed. Installed jpegoptim-bin manually with updated version as a fix
+// cf https://github.com/semiromid/compress-images/issues/31. didnt work.
+// - imagemin has been tried because crossref from compress-image dependency
+// cf. https://github.com/imagemin/jpegoptim-bin#readme. PB is it doesn't allow
+// trans-compression (svg stays svg, and in our case no compression is done
+// because our svg embed png which is not altered by imagemin-svgo plugin).
+// thus,
+// => we use shar for svg->png file type conversion
+// => we use imagemin for png compression
+
+// This setup requires conda with env.
+// 
+// ## Install/Update conda
+// 
+// ### Either install conda
+// 
+// Check `https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html`.
+// Both miniconda and anaconda will do.
+// 
+// ### Or update conda
+// 
+// ```sh
+// conda update conda
+// ```
+// 
+// ## Setup conda
+// 
+// Run one of those depending on the shell you're using (bash by default):
+// - `conda init bash`
+// - `conda init fish`
+// - `conda init zsh`
+// - `conda init --help # for an exhaustive list of available shell`
+// 
+// You might need to reopen the shell window for change to occurs on osx (this
+// will reload the shell environment).
+// 
+// cf. `https://stackoverflow.com/questions/54544967/conda-init-for-conda-4-6-not-working-on-macos-mojave`
+// 
+// ## Create the package environment
+// 
+// The main official and documented way to create an environment in conda is the 
+// following.
+// cf. `https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#deactivating-an-environment`
+// 
+// ```sh
+// # DO NOT RUN!
+// #
+// # Add the additional required package channels.
+// # $ conda config --add channels conda-forge # for nilearn only
+// #
+// # Create the package environment.
+// # $ conda create --name myenv python=3.7 pandas rise jupyter nilearn ...
+// ```
+// 
+// In order to make such en environment sharable we have to run the following
+// command:
+// 
+// 
+// ```sh
+// # DO NOT RUN!
+// # $ conda env export > environment.yml
+// ```
+// 
+// This command exports os-specific packages into the environment file. Thus, 
+// preventing user using other platforms from installing the packages.
+// cf. `https://stackoverflow.com/questions/39280638/how-to-share-conda-environments-across-platforms`
+// 
+// Instead, create the environment file manually. You can check latest package
+// versions on `https://anaconda.org/`. Although setting package version is not
+// mandatory, this saves a lot of trouble. It's preferable to not follow the
+// official doc's convention of using the lastest PATCH version (using `x.x.*`
+// syntax). This is a bit less secure, but actually ensure future user wont use
+// broken package version since they're using a version you've tested.
+// 
+// 
+// ```sh
+// # This creates and fills an environment.yml file through command line.
+// echo >environment.yml "\
+// name: pnplab_mlcourse
+// channels:
+//     # ...default conda channels already set up
+//     - conda-forge # for nilearn and rise
+// dependencies:
+//     - python=3.7
+//     - jupyter=1.0.0
+//     - rise=5.5.1
+//     - numpy=1.17.2
+//     - pandas=0.25.1
+//     - nilearn=0.5.2
+//     - matplotlib=3.1.1
+// "
+// ```
+// 
+// Once written, you can install the environment's package on your local machine
+// relying on the generated file.
+// 
+// ```sh
+// # The --force attribute will override previous environment with the same name
+// # (as set through the name attribute of the environment.yml file). Just added 
+// # it in order to make it easy to update dependencies later on.
+// conda env create --force --file environment.yml
+// ```
+// 
+// Also note JupyterLab (the new official Jupyter Notebook IDE) doesn't work
+// (yet) with Rise, `https://github.com/damianavila/RISE/issues/270`.
+// 
+// ## Activate the package environment
+// 
+// Since conda v4.4, use the following command instead of documented ones.
+// cf. `https://askubuntu.com/questions/1068768/when-using-conda-source-activate-env-name-doesnt-work-but-conda-activate`
+// 
+// ```sh
+// conda activate pnplab_mlcourse
+// ```
+
+// Notice the user he must activate his conda environment.
+console.info(`You must activate your conda environment so the pdf conversion can be achieved through nbconvert.`);
+
+const path = require('path');
+const fs = require('fs');
+const util = require('util');
+const child_process = require('child_process');
+
+// https://github.com/imagemin/imagemin
+const imagemin = require('imagemin');
+const imageminPngquant = require('imagemin-pngquant');
+
+// https://github.com/lovell/sharp
+const sharp = require('sharp');
+
+// https://github.com/isaacs/node-glob
+const glob = require('glob-promise');
+
+// https://github.com/puppeteer/puppeteer/blob/master/docs/api.md
+const puppeteer = require('puppeteer');
+
+// https://github.com/cheeriojs/cheerio
+const cheerio = require('cheerio');
+
+// https://stackoverflow.com/questions/46867517/how-to-read-file-with-async-await-properly/46867579
+const readFile = util.promisify(fs.readFile);
+const writeFile = util.promisify(fs.writeFile);
+const copyFile = util.promisify(fs.copyFile);
+const exec = util.promisify(child_process.exec);
+
+// Main dataflow.
+(async () => {
+	// Retrieve ipynb file list.
+	const inputIpynbFiles = await listInputIpynbFiles();
+	// Process ipynb file list.
+	let ouputIpynbFiles = await processIpynbFileListWith(
+		inputIpynbFiles,
+		// Process Ipynb output content.
+		async (ipynbJson, ipynbPath) => {
+			// Change Markdown cell content.
+			return await processIpynbJsonMarkdownCellsWith(
+				ipynbJson,
+				async (markdownCellSourceStr) => {
+					const convertImageSrcToB64 = async (imgSrc) => {
+						// ...image path is currently relative to the
+						// ipynb. We need to make it relative to this
+						// current script.
+						const newImgSrc = path.join(ipynbPath, '..', imgSrc);
+
+						let output = imgSrc;
+						try {
+							// Process image and embed it inside src attr.
+							let resampledPngBuffer = await convertImagePathToResampledPngBuffer(newImgSrc);
+							let compressedPngBuffer = await compressPngBuffer(resampledPngBuffer);
+							resampledPngBuffer = null;
+							let base64PngBufferStr = compressedPngBuffer.toString('base64');
+							compressedPngBuffer = null;
+							let base64PngDataUrl = 'data:image/png;base64,' + base64PngBufferStr;
+
+							// Set new base64 data url and log success.
+							output = base64PngDataUrl;
+							console.info('SUCCESS ', ipynbPath, newImgSrc);
+						}
+						catch (e) {
+							console.log(e);
+							// Keep previous img src and log failure.
+							output = imgSrc;
+							console.info('FAILURE ', ipynbPath, newImgSrc);
+						}
+
+						// Apply processing.
+						return output;
+					}
+
+					// Change Img src attribute.
+					return await processMarkdownStringImgSrcsWith(
+						markdownCellSourceStr,
+						convertImageSrcToB64
+					);
+				}
+			);
+		},
+		// Bundle Ipynb.
+		async (inputIpynbPath, outputIpynbStr) => {
+			// Get filename without extension.
+			const bundle = path.basename(inputIpynbPath, '.ipynb');
+
+			// Create bundle dir if doesn't exists.
+			if (!fs.existsSync(`../../${bundle}`)) {
+				fs.mkdirSync(`../../${bundle}`, 0744);
+			}
+
+			// Record the processed ipynb file.
+			await writeFile(`../../${bundle}/${bundle}.ipynb`, outputIpynbStr, 'utf8');
+
+			// Inject css file.
+			// @warning this css file can only be read if the jupyter notebook 
+			// rise extension is enabled (see comments in template.css file).
+			await copyFile('template.css', `../../${bundle}/${bundle}.css`);
+
+			// Convert processed ipynb to pdf.
+			await convertIpynbToPdf(`../../${bundle}/${bundle}.ipynb`, `../../${bundle}/${bundle}.pdf`);
+
+			// Move bundle.
+			return `../../${bundle}`;
+		}
+	);
+
+	console.info(ouputIpynbFiles);
+})();
+
+async function convertIpynbToPdf(inputPath, outputPath) {
+	// First convert ipynb to html (instead of pdf due to the reason
+	// commented below).
+	// @warning unsafe.
+	const randomFileName = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+	const tmpHtmlPath = `/tmp/${randomFileName}.html`;
+	const { stdout, stderr } = await exec(`jupyter nbconvert --to html ${inputPath} --output ${tmpHtmlPath}`);
+	console.log(stdout);
+	console.error(stderr);
+
+	// Then print the html as a pdf.
+	const browser = await puppeteer.launch({ headless: true });
+	const page = await browser.newPage();
+	const url = 'file://' + path.resolve(tmpHtmlPath);
+	await page.goto(url, { waitUntil: 'networkidle0' });
+	const pdfBuffer = await page.pdf({
+		format: 'A4',
+		displayHeaderFooter: false,
+		margin: {
+			top: '2.5cm',
+			right: '2.5cm',
+			bottom: '2.5cm',
+			left: '2.5cm'
+		}
+	});
+	await browser.close();
+
+	// Remove tmp html file asynchonously.
+	fs.unlink(tmpHtmlPath, () => {});
+
+	// Finally, write the pdf down.
+	await writeFile(outputPath, pdfBuffer);
+
+	// @deprecated Convert processed ipynb to pdf.
+	// 
+	// Requires xelatex: `OSError: xelatex not found on PATH, if you
+	// have not installed xelatex you may need to do so. Find further
+	// instructions at https://nbconvert.readthedocs.io/en/latest/install.html#installing-tex.
+	// Instructions provide link to MacTex ~4go dependency. You can use
+	// BasicTex ~100mo dependency instead here
+	// http://www.texts.io/support/0001/ or just `brew cask install
+	// basictex` on mac. You may need to resource your PATH env
+	// variable after installation (restart terminal).
+	// 
+	// For `! LaTeX Error: File `tcolorbox.sty' not found.` and rsfs*
+	// files issuse.
+	//
+	// ```bash
+	// sudo tlmgr update --self
+	// sudo tlmgr install adjustbox
+	// sudo tlmgr install tcolorbox
+	// sudo tlmgr install environ
+	// sudo tlmgr install trimspaces
+	// sudo tlmgr install collectbox
+	// sudo tlmgr install ucs
+	// sudo tlmgr install titling
+	// sudo tlmgr install enumitem
+	// sudo tlmgr install rsfs
+	// ```
+	//
+	// Unfortunately, images doesn't work.
+	// https://github.com/jupyter/nbconvert/issues/552
+	// Tested w/ image in:
+	// - embedded b64 png,
+	// - external png
+	// - external jpeg
+	// - html <img> format
+	// - markdown image format
+	// - relative path
+	// - absolute
+	// External png/jpeg in linked from markdown image format do take,
+	// space in the output pdf, but all appear transparent.
+	//
+	// @warning unsafe.
+	// const { stdout, stderr } = await exec(`jupyter nbconvert --to pdf ../${bundle}/${bundle}.ipynb --output ../${bundle}/${bundle}.pdf`);
+}
+
+async function listInputIpynbFiles() {
+	// Retrieve ipynb files to process.
+	let ipynbs = await glob('../../source/*.ipynb');
+
+	// Remove ipynbs from the build folder.
+	ipynbs = ipynbs.filter(ipynb => 
+		!path
+			.relative('.', ipynb)
+			.startsWith('build')
+	);
+
+	// Return list.
+	return ipynbs;
+}
+
+async function processIpynbFileListWith(ipynbFilePaths, processIpynbJsonFn, recordProcessedIpynbFn) {
+	ipynbFilePaths = [...ipynbFilePaths]; // clone input to prevent side effect.
+	let outputIpynbFilePaths = [];
+
+	// For every input ipynb file path.
+	for (let i=0; i<ipynbFilePaths.length; ++i) {
+		const ipynbPath = ipynbFilePaths[i];
+
+		// Retrieve ipynb text content. Specify encoding so readFile returns a 
+		// string instead of a buffer.
+		// cf. https://stackoverflow.com/questions/6456864/why-does-node-js-fs-readfile-return-a-buffer-instead-of-string.
+		const ipynbStr = await readFile(ipynbPath, 'utf8');
+
+		// Parse ipynb string as a json object.
+		const ipynbJson = JSON.parse(ipynbStr);
+
+		// Apply processing function.
+		let processedIpynbJson = await processIpynbJsonFn(ipynbJson, ipynbPath);
+
+		// Convert back ipynb json output to string once processed.
+		let processedIpynbStr = JSON.stringify(processedIpynbJson);
+
+		// Generate output file path.
+		const processedIpynbPath = await recordProcessedIpynbFn(ipynbPath, processedIpynbStr);
+
+		// Store new file to our array.
+		outputIpynbFilePaths.push(processedIpynbPath);
+	}
+
+	// Return ipynbs output file paths.
+	return outputIpynbFilePaths;
+}
+
+async function processIpynbJsonMarkdownCellsWith(ipynbJson, processMarkdownStrFn) {
+	// Prevent side effects on input parameter object/reference by clonage.
+	// For safety, as we indeed will modify it later.
+	ipynbJson = JSON.parse(JSON.stringify(ipynbJson));
+	let processedIpynbJson = ipynbJson;
+	
+	// Retrieve html img sources from markdown cells.
+	const ipynbCells = ipynbJson.cells;
+	for (let i=0; i<ipynbCells.length; ++i) {
+		const ipynbCell = ipynbCells[i];
+		if (ipynbCell.cell_type !== 'markdown') {
+			// ...ignore cells that aren't markdown ones.
+		}
+		else {
+			// Retrieve markdown content.
+			const markdownCellSource = ipynbCell.source;
+
+			// Ignore intreatable markdownCellSource.
+			if (Array.isArray(markdownCellSource) || typeof markdownCellSource === 'string') {
+				// This is the right way, continue this iteration!
+			}
+			else if (typeof markdownCellSource === 'object' && Object.keys(markdownCellSource).length === 0) {
+				// ...ignore empty objects, probably auto generated. Jump to
+				// next iteration.
+				continue;
+			}
+			else {
+				// ...wrong content cell type.
+				// Warn but keep the process ongoing.
+				console.warn('WARN: wrong markdown content cell type found (neither string nor array): ', typeof markdownCellSource, markdownCellSource);
+
+				// Prevent processMarkdownStrFn to be called with wrong
+				// parameter input. Jump to next iteration.
+				continue;
+			}
+
+			// Convert multiline cell sources in string if array. 
+			// @warning we'll partly lose the original file formating but this
+			// prevent edge case from happening such has having to process an
+			// img tag splitted along multiple line. This is also the way
+			// official nbformat API does.
+			// cf. https://nbformat.readthedocs.io/en/latest/format_description.html#cell-types.
+			let markdownCellSourceStr;
+			if (Array.isArray(markdownCellSource)) {
+				markdownCellSourceStr = markdownCellSource.join('\n');
+			}
+			else if (typeof markdownCellSource === 'string') {
+				markdownCellSourceStr = markdownCellSource;
+			}
+
+			// Apply processing to it.
+			const processedMarkdownCellSourceStr = await processMarkdownStrFn(markdownCellSourceStr);
+
+			// Update our output ipynb object.
+			processedIpynbJson.cells[i].source = processedMarkdownCellSourceStr;
+		}
+	}
+
+	// Return processed ipynb json.
+	return processedIpynbJson;
+}
+
+// @note not used anymore, usefull to convert html img to markdown format.
+async function processMarkdownStringImgWith(markdownString, processSrcFn) {
+	// Check param to ensure cheerio doesn't throw. cf
+	// https://github.com/cheeriojs/cheerio/issues/1091#issuecomment-364444116.
+	if (typeof markdownString !== 'string') {
+		throw new Error('processMarkdownStringImgSrcsWith markdownString should be of type string, found ' + typeof processMarkdownStringImgSrcsWith + ' instead.');
+	}
+
+	// Parse markdown as loose HTML (because it includes html and
+	// our goal is to process <img> tags embedded within). Cheerio will 
+	// automatically embed the markdown string inside a standard <html> / 
+	// <body> structure.
+	const $ = cheerio.load(markdownString, {
+		xmlMode: false,
+		decodeEntities: false
+	});
+
+	// Retrieve all image src attributes. Store processing promises in an array
+	// out of cheerio API as we don't know how #each method handles 
+	// asynchronicity. It might ignore asynchronous function.
+	// cf. https://github.com/cheeriojs/cheerio/issues/752#issuecomment-140776722
+	let processingSrcPromises = [];
+	const src = $('body img').each((i, img) => {
+		let src = $(img).attr('src');
+		if (typeof src !== 'string') {
+			// ...filter out <img> without string src attribute.
+		}
+		else {
+			// Process src attribute. Ensure we always retrieve a promise out
+			// of this.
+			let processingPromise1 = Promise.resolve(processSrcFn(src));
+
+			// Convert the html <img> tag to markdown image with new src once
+			// processing has been executed.
+			let processingPromise2 = (async () => {
+				const processedSrc = await processingPromise1;
+
+				$(img).replaceWith(`![${src}](${processedSrc})`);
+			})();
+
+			// Add filtered src processing promises to a promise list so we'll 
+			// be able to wait untill all asynchronous processing have ended.
+			processingSrcPromises.push(processingPromise2);
+		}
+	});
+
+	// Wait for all src attribute processing to be done.
+	// @warning will fail if one fail. `Promise.allSettled` not available in
+	//     node 10.
+	await Promise.all(processingSrcPromises);
+
+	// Return our processed markdown.
+	let processedMarkdownString = $('body').html();
+	return processedMarkdownString;
+}
+
+async function processMarkdownStringImgSrcsWith(markdownString, processSrcFn) {
+	// Check param to ensure cheerio doesn't throw. cf
+	// https://github.com/cheeriojs/cheerio/issues/1091#issuecomment-364444116.
+	if (typeof markdownString !== 'string') {
+		throw new Error('processMarkdownStringImgSrcsWith markdownString should be of type string, found ' + typeof processMarkdownStringImgSrcsWith + ' instead.');
+	}
+
+	// Parse markdown as loose HTML (because it includes html and
+	// our goal is to process <img> tags embedded within). Cheerio will 
+	// automatically embed the markdown string inside a standard <html> / 
+	// <body> structure.
+	const $ = cheerio.load(markdownString, {
+		xmlMode: false,
+		decodeEntities: false
+	});
+
+	// Retrieve all image src attributes. Store processing promises in an array
+	// out of cheerio API as we don't know how #each method handles 
+	// asynchronicity. It might ignore asynchronous function.
+	// cf. https://github.com/cheeriojs/cheerio/issues/752#issuecomment-140776722
+	let processingSrcPromises = [];
+	const src = $('body img').each((i, img) => {
+		let src = $(img).attr('src');
+		if (typeof src !== 'string') {
+			// ...filter out <img> without string src attribute.
+		}
+		else {
+			// Process src attribute. Ensure we always retrieve a promise out
+			// of this.
+			let processingPromise1 = Promise.resolve(processSrcFn(src));
+
+			// Modify the src attribute once processing has been executed.
+			let processingPromise2 = (async () => {
+				const processedSrc = await processingPromise1;
+				$(img).attr('src', processedSrc);
+			})();
+
+			// Add filtered src processing promises to a promise list so we'll 
+			// be able to wait untill all asynchronous processing have ended.
+			processingSrcPromises.push(processingPromise2);
+		}
+	});
+	
+	// Wait for all src attribute processing to be done.
+	// @warning will fail if one fail. `Promise.allSettled` not available in
+	//     node 10.
+	await Promise.all(processingSrcPromises);
+
+	// Return our processed markdown.
+	let processedMarkdownString = $('body').html();
+	return processedMarkdownString;
+}
+
+async function convertImagePathToResampledPngBuffer(imagePath) {
+	// Process buffer. `imagePath` can be any image, including svg.
+	let resampledPngBuffer = await sharp(imagePath)
+			.png({
+				/* 
+				..config options seems not to be working.
+				palette: true,
+				quality: 0,
+				colours: 2
+				*/
+			})
+			// https://sharp.pixelplumbing.com/en/stable/api-resize/#resize
+			.resize(800, 600, {
+				fit: 'inside',
+				withoutEnlargement: true
+			})
+			.toBuffer();
+	
+	// Return buffer.
+	return resampledPngBuffer;
+}
+
+async function compressPngBuffer(pngBuffer) {
+	const compressedPngBuffer = await imagemin.buffer(
+		// Input.
+		pngBuffer, 
+		// Opts.
+		{},
+		// Plugins.
+		[
+			imageminPngquant({
+				strip: true,
+				quality: [0, 0.9]
+			})
+		]
+	);
+
+	return compressedPngBuffer;
+}
