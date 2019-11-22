@@ -12,7 +12,7 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="703.79169mm"
    height="188.64792mm"
-   viewBox="0 0 703.79167 188.64791"
+   viewBox="0 0 703.79168 188.6479"
    version="1.1"
    id="svg8"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
@@ -27,8 +27,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.175"
-     inkscape:cx="-1695.9998"
-     inkscape:cy="975.50015"
+     inkscape:cx="1330.0001"
+     inkscape:cy="356.50002"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -53,11 +53,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-265.75073,-330.51025)">
+     transform="translate(844.81897,-453.23907)">
     <image
-       y="330.51025"
-       x="265.75073"
-       id="image275"
+       y="453.23907"
+       x="-844.81897"
+       id="image621"
        xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAACmQAAALJCAYAAACgUN7JAAAABHNCSVQICAgIfAhkiAAAIABJREFU
 eJzs3T10G0ea7/9fNej7512RXt7ocqOBo5UPSA8cLR0NFY0cWYosR6aikTkEh4psR7Ii25FokSNr
 ItGRNJE5kTWR6MicyByTPNaNjI2WGy3XovZw1wDqHzSpV750NbrRVd3fzzk6M5bQQAHdXU891fUi

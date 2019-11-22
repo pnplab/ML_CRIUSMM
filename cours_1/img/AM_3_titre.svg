@@ -12,11 +12,11 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="1185.8625mm"
    height="69.849998mm"
-   viewBox="0 0 1185.8627 69.849999"
+   viewBox="0 0 1185.8625 69.84999"
    version="1.1"
    id="svg8"
-   sodipodi:docname="AM_3_titre.svg"
-   inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="AM_3_titre.svg">
   <defs
      id="defs2" />
   <sodipodi:namedview
@@ -26,15 +26,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.16"
-     inkscape:cx="1472.2502"
-     inkscape:cy="1026.5"
+     inkscape:zoom="0.175"
+     inkscape:cx="2241.0003"
+     inkscape:cy="132.00009"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1898"
      inkscape:window-height="1504"
-     inkscape:window-x="1920"
+     inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0" />
   <metadata
@@ -53,11 +53,11 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-83.645668,650.01672)">
+     transform="translate(1069.9794,-528.51306)">
     <image
-       y="-650.01672"
-       x="83.645668"
-       id="image5253"
+       y="528.51306"
+       x="-1069.9794"
+       id="image401"
        xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAEYIAAAEICAYAAAD8Jzf8AAAABHNCSVQICAgIfAhkiAAAIABJREFU
 eJzs3T9wHMe5KPqvZ0FpYdZ7Qnb5oktHV4oOHR06EhyZJ/KCKpblyECRlOTIUiQpshTJjmRHkgiw
 lo5Ml8sCHEmOBEfiicwTmTcyT3R5M9BVFFcSdvoFAEWR4h9gZ3Z3BvP7VbnKkrC9vbOz3/T01/N1
