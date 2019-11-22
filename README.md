@@ -4,27 +4,27 @@
 
 # Formation en apprentissage machine au CRIUSMM
 
-Ce "répo" github contient le matériel utilisé dans la formation en apprentissage machine donnée au CRIUSMM à l'automne 2019.
-
-Le matériel est disponible dans des dossiers séparés pour les 5 sessions théoriques et de démonstration (```intro/cours_1, cours_2, cours_3, cours_4 et cours_5```) et les 2 séances de travaux pratiques (```TP_1 et TP_2```). 
+Ce "répo" github contient le matériel utilisé dans la formation en apprentissage machine organisée par Etienne Dumesnil et Pierre Orban au CRIUSMM à l'automne 2019.
 
 Chaque cours repose sur un notebook *Jupyter* (https://jupyter.org), une application WEB qui permet de créer et de partager des documents contenant du code et d'en visualiser le résultat. Toutes les démonstrations reposent sur *ScikitLearn* (https://scikit-learn.org/), une bibliothèque libre *Python* dédiée à l'apprentissage machine. 
 
-Les données utilisées pour tous les exemples proviennent de données simulées (fichier ```/data/sim_data_signature.csv``` contenant des données transversales pour 543 patients et 90 contrôles, avec 222 variables) à partir de la banque de données Signature (https://www.banquesignature.ca). *__Il est strictement interdit d'utiliser ces données à d'autres fins que de formation. Toute demande d'accès doit être formulée en bonne et due forme:__* https://www.banquesignature.ca/demande-acces/faire-une-demande-dacces/
+Le matériel (notebooks ```.ipynb``` et leurs conversions ```.pdf```) est disponible dans des dossiers séparés pour les 6 sessions théoriques et de démonstration (```cours_1```, ```cours_2```, ```cours_3```, ```cours_4```, ```cours_5``` et ```cours_6```). 
 
-Afin de ne pas requérir des participants à la formation de créer un environnement leur permettant l'exécution fluide des notebooks (anaconda recommandé: https://www.anaconda.com/distribution/), une version interactive est accessible sur *Binder* (https://mybinder.org): [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
+Afin de ne pas requérir des participants à la formation de devoir créer un environnement leur permettant l'exécution fluide des notebooks (anaconda recommandé: https://www.anaconda.com/distribution/), une version interactive est accessible sur *Binder* (https://mybinder.org) en suivant ce lien: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/pnplab/ML_CRIUSMM/master)
+
+Les données utilisées pour tous les exemples proviennent de données simulées (fichier ```/data/sim_data_signature_small.csv``` contenant des données transversales pour 543 patients et 90 contrôles, avec 41 variables) à partir de la banque de données Signature (https://www.banquesignature.ca). *__Il est strictement interdit d'utiliser ces données à d'autres fins que de formation. Toute demande d'accès aux données doit être formulée en bonne et due forme:__* https://www.banquesignature.ca/demande-acces/faire-une-demande-dacces/
 
 
 ## Plan de formation
 
 ### Cours 1: Intro à l'apprentissage machine
 - Statistiques inférentielles vs apprentissage machine
-    - interprétation vs prédiction
-    - déduction vs induction
-    - biais et variance
+    - Interprétation vs prédiction
+    - Déduction vs induction
+    - Biais et variance
 - Apprentissage machine supervisé vs non supervisé
-    - supervisé: régression vs classification
-    - non supervisé: réduction vs regroupement
+    - Supervisé: régression vs classification
+    - Non supervisé: réduction vs regroupement
 
 ### Cours 2: Apprentissage machine supervisé - régression 
 - Concepts fondamentaux de l'apprentissage machine supervisé
@@ -62,7 +62,8 @@ Afin de ne pas requérir des participants à la formation de créer un environne
     - Modèles d'ensemble
 
 ### Cours 6: Réseaux de neurones (profonds)
-
+<br/>
+<br/>
 
 ## Ressources additionnelles
 
